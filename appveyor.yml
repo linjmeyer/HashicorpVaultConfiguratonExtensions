@@ -12,11 +12,20 @@ install:
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
+  # Patch csproj version file
+  - dotnet_csproj:
+      patch: true
+      file: 'LinMeyer.AspNetCore.HashicorpVault\*.csproj'
+      version: '{version}'
+      package_version: '{version}'
+      assembly_version: '{version}'
+      file_version: '{version}'
+      informational_version: '{version}'
   # restore
   - cmd: dotnet restore ./LinMeyer.AspNetCore.HashicorpVault/LinMeyer.AspNetCore.HashicorpVault.csproj
 build_script:
   # build
-  - cmd: dotnet build ./LinMeyer.AspNetCore.HashicorpVault/LinMeyer.AspNetCore.HashicorpVault.csproj -c Release -p:Version={version}
+  - cmd: dotnet build ./LinMeyer.AspNetCore.HashicorpVault/LinMeyer.AspNetCore.HashicorpVault.csproj -c Release
 after_build:
   # For once the build has completed
 # artifacts:
