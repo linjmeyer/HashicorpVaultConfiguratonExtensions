@@ -1,14 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using VaultSharp;
 
 namespace LinMeyer.AspNetCore.HashicorpVault 
 {
     public static class ExtensionMethods 
     {
-        public static IConfigurationBuilder AddHashicorpVault(this IConfigurationBuilder builder, VaultClientSettings clientSettings, IEnumerable<string> keyValues)
+        public static IConfigurationBuilder AddHashicorpVault(this IConfigurationBuilder builder, Action<VaultConfigurationOptions> options)
         {
-            var source = new VaultConfigurationSource(clientSettings, keyValues);
+            var source = new VaultConfigurationSource(options);
             builder.Add(source);
 
             return builder;

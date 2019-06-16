@@ -28,7 +28,10 @@ namespace AspNetDebugger
                     IAuthMethodInfo authMethod = new TokenAuthMethodInfo("s.AaFey8lIgEMoZNqq5bHldwBP");
                     // Initialize settings. You can also set proxies, custom delegates etc. here.
                     var vaultClientSettings = new VaultClientSettings("http://127.0.0.1:8200", authMethod);
-                    c.AddHashicorpVault(vaultClientSettings, new [] { "creds" });
+                    c.AddHashicorpVault(o => {
+                        o.ClientSettings = vaultClientSettings;
+                        o.Secrets.Append(new RetreivableSecret("creds"));
+                    });
                 })
                 .UseStartup<Startup>();
     }

@@ -2,21 +2,25 @@
 using VaultSharp;
 using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using VaultSharp.V1.Commons;
 
 namespace LinMeyer.AspNetCore.HashicorpVault
 {
     public class VaultConfigurationProvider : ConfigurationProvider
     {
-        private VaultClientSettings _clientSettings;
         private IVaultClient _client;
-        private IEnumerable<string> _keyValueSecrets;
+        private VaultConfigurationOptions _config;
 
-        public VaultConfigurationProvider(VaultClientSettings clientSettings, IEnumerable<string> keyValueSecrets)
+        public VaultConfigurationProvider(VaultConfigurationOptions options)
         {
-            _clientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
-            _client = new VaultClient(_clientSettings);
-            _keyValueSecrets = keyValueSecrets;
+            _config = options;
+
+            if(_config.ClientSettings == null) 
+            {
+                throw new ArgumentNullException(nameof(_config.ClientSettings));
+            }
+
+            _client = new VaultClient(_config.ClientSettings);
         }
 
         public override void Load() 
@@ -31,15 +35,27 @@ namespace LinMeyer.AspNetCore.HashicorpVault
 
         private async Task GetAllSecretsAsync()
         {
-            foreach(var secretName in _keyValueSecrets)
+            foreach(var retreivableSecret in _config.Secrets)
             {
-                var secret = await _client.V1.Secrets.KeyValue.V2.ReadSecretAsync(secretName);
+                var name = retreivableSecret.Name;
+                var secret = await GetSecret(retreivableSecret);
                 foreach(var secretValue in secret.Data.Data)
                 {
                     // Add to IConfigurationProvier data as SecretName:SecretValueName=Value
                     // E.g. something like loginsecret:username=asdfasdf, loginsecret:password=asdfasdf
-                    Data.Add($"{secretName}:{secretValue.Key}", secretValue.Value.ToString());
+                    Data.Add($"{name}:{secretValue.Key}", secretValue.Value.ToString());
                 }
+            }
+        }
+
+        private async Task<Secret<SecretData>> GetSecret(RetreivableSecret secret)
+        {
+            switch (secret.Type)
+            {
+                case SecretType.KeyValue:
+                    return await _client.V1.Secrets.KeyValue.V2.ReadSecretAsync(secret.Name);
+                default:
+                    throw new InvalidOperationException($"Cannot load secret of type: {secret.Type}");
             }
         }
     }

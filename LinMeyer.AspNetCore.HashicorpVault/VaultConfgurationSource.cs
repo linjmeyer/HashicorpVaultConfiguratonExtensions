@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using VaultSharp;
@@ -6,18 +7,17 @@ namespace LinMeyer.AspNetCore.HashicorpVault
 {
     public class VaultConfigurationSource : IConfigurationSource
     {
-        private VaultClientSettings _clientSettings;
-        private IEnumerable<string> _keyValues;
+        private VaultConfigurationOptions _config;
 
-        public VaultConfigurationSource(VaultClientSettings clientSettings, IEnumerable<string> keyValues)
+        public VaultConfigurationSource(Action<VaultConfigurationOptions> config)
         {
-            _clientSettings = clientSettings;
-            _keyValues = keyValues;
+            _config = new VaultConfigurationOptions();
+            config.Invoke(_config);
         }
 
         public IConfigurationProvider Build(IConfigurationBuilder builder)
         {
-            return new VaultConfigurationProvider(_clientSettings, _keyValues);
+            return new VaultConfigurationProvider(_config);
         }
     }
 }
