@@ -5,7 +5,7 @@ This repository contains a provider for Microsoft.Extensions.Configuration that 
 
 ### With ASP.NET Core
 
-```
+```csharp
 public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
     WebHost.CreateDefaultBuilder(args)
         .ConfigureAppConfiguration(c => {
