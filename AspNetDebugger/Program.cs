@@ -7,6 +7,10 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using LinMeyer.AspNetCore.HashicorpVault;
+using VaultSharp.V1.AuthMethods;
+using VaultSharp;
+using VaultSharp.V1.AuthMethods.Token;
 
 namespace AspNetDebugger
 {
@@ -19,6 +23,13 @@ namespace AspNetDebugger
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(c => {
+                    // Choose your auth method
+                    IAuthMethodInfo authMethod = new TokenAuthMethodInfo("s.AaFey8lIgEMoZNqq5bHldwBP");
+                    // Initialize settings. You can also set proxies, custom delegates etc. here.
+                    var vaultClientSettings = new VaultClientSettings("http://127.0.0.1:8200", authMethod);
+                    c.AddHashicorpVault(vaultClientSettings, new [] { "creds" });
+                })
                 .UseStartup<Startup>();
     }
 }
