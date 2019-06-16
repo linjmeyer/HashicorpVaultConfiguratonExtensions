@@ -31,6 +31,7 @@ namespace AspNetDebugger
                     c.AddHashicorpVault(o => {
                         o.ClientSettings = vaultClientSettings;
                         o.KeyValueSecrets.Add(new KeyValueSecret("creds"));
+                        o.CubbyholeSecrets.Add(new CubbyholeSecret("creds"));
                        // o.DatabaseSecrets.Add(new DatabaseSecret("test"));
                     });
                 })

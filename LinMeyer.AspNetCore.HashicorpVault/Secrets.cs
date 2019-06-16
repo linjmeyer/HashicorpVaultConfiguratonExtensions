@@ -29,7 +29,7 @@ namespace LinMeyer.AspNetCore.HashicorpVault
     }
 
     ////////////////////////////////////////////////////
-    // Nomad
+    // Database
     ////////////////////////////////////////////////////
     public class DatabaseSecret
     {
@@ -37,6 +37,18 @@ namespace LinMeyer.AspNetCore.HashicorpVault
         public DatabaseSecret(string name)
         {
             Name = name;
+        }
+    }
+
+    ////////////////////////////////////////////////////
+    // Cubbyhole
+    ////////////////////////////////////////////////////
+    public class CubbyholeSecret
+    {
+        public string Path { get; set; }
+        public CubbyholeSecret(string path)
+        {
+            Path = path;
         }
     }
 }

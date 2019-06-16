@@ -39,6 +39,7 @@ namespace LinMeyer.AspNetCore.HashicorpVault
         {
             await GetKeyValueSecretsAsync();
             await GetDatabaseSecretsAsync();
+            await GetCubbyholeSecretsAsync();
         }
 
         private async Task GetKeyValueSecretsAsync()
@@ -73,6 +74,19 @@ namespace LinMeyer.AspNetCore.HashicorpVault
                 Data.Add($"{retreivableSecret.Name}:username", secret.Data.Username);
                 Data.Add($"{retreivableSecret.Name}:password", secret.Data.Password);
             }
+        }
+
+        private async Task GetCubbyholeSecretsAsync()
+        {
+            foreach(var retreivableSecret in _config.CubbyholeSecrets)
+            {
+                var secret = await _client.V1.Secrets.Cubbyhole.ReadSecretAsync(retreivableSecret.Path);
+                 foreach(var secretValue in secret.Data)
+                {
+                    // Add to IConfigurationProvier data as SecretName:SecretValueName=Value
+                    // E.g. something like loginsecret:username=asdfasdf, loginsecret:password=asdfasdf
+                    Data.Add($"{retreivableSecret.Path}:{secretValue.Key}", secretValue.Value.ToString());
+                }            }
         }
     }
 }
