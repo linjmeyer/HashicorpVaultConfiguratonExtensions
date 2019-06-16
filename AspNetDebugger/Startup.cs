@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LinMeyer.AspNetCore.HashicorpVault;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -18,6 +19,8 @@ namespace AspNetDebugger
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var config = (ConfigurationRoot) Configuration;
+            var provider = config.Providers.First(p => p.GetType() == typeof(VaultConfigurationProvider)) as VaultConfigurationProvider;
         }
 
         public IConfiguration Configuration { get; }

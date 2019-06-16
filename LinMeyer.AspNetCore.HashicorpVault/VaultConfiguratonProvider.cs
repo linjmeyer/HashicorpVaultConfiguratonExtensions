@@ -3,6 +3,8 @@ using VaultSharp;
 using System;
 using System.Threading.Tasks;
 using VaultSharp.V1.Commons;
+using System.Collections.Generic;
+using VaultSharp.V1.SecretsEngines;
 
 namespace LinMeyer.AspNetCore.HashicorpVault
 {
@@ -35,27 +37,41 @@ namespace LinMeyer.AspNetCore.HashicorpVault
 
         private async Task GetAllSecretsAsync()
         {
-            foreach(var retreivableSecret in _config.Secrets)
+            await GetKeyValueSecretsAsync();
+            await GetDatabaseSecretsAsync();
+        }
+
+        private async Task GetKeyValueSecretsAsync()
+        {
+            foreach(var retreivableSecret in _config.KeyValueSecrets)
             {
-                var name = retreivableSecret.Name;
-                var secret = await GetSecret(retreivableSecret);
-                foreach(var secretValue in secret.Data.Data)
+
+                Dictionary<string,object> secretData; // To store secret data which will be retreived from v1 or v2 api
+                if(retreivableSecret.Version == KeyValueVersion.V1) 
+                {
+                    var secretV1 = await _client.V1.Secrets.KeyValue.V1.ReadSecretAsync(retreivableSecret.Name);
+                    secretData = secretV1.Data;
+                } else {
+                    var secretV2 = await _client.V1.Secrets.KeyValue.V2.ReadSecretAsync(retreivableSecret.Name);
+                    secretData = secretV2.Data.Data;
+                }
+
+                foreach(var secretValue in secretData)
                 {
                     // Add to IConfigurationProvier data as SecretName:SecretValueName=Value
                     // E.g. something like loginsecret:username=asdfasdf, loginsecret:password=asdfasdf
-                    Data.Add($"{name}:{secretValue.Key}", secretValue.Value.ToString());
+                    Data.Add($"{retreivableSecret.Name}:{secretValue.Key}", secretValue.Value.ToString());
                 }
             }
         }
 
-        private async Task<Secret<SecretData>> GetSecret(RetreivableSecret secret)
+        private async Task GetDatabaseSecretsAsync()
         {
-            switch (secret.Type)
+            foreach(var retreivableSecret in _config.DatabaseSecrets)
             {
-                case SecretType.KeyValue:
-                    return await _client.V1.Secrets.KeyValue.V2.ReadSecretAsync(secret.Name);
-                default:
-                    throw new InvalidOperationException($"Cannot load secret of type: {secret.Type}");
+                var secret = await _client.V1.Secrets.Database.GetCredentialsAsync(retreivableSecret.Name);
+                Data.Add($"{retreivableSecret.Name}:username", secret.Data.Username);
+                Data.Add($"{retreivableSecret.Name}:password", secret.Data.Password);
             }
         }
     }

@@ -30,7 +30,8 @@ namespace AspNetDebugger
                     var vaultClientSettings = new VaultClientSettings("http://127.0.0.1:8200", authMethod);
                     c.AddHashicorpVault(o => {
                         o.ClientSettings = vaultClientSettings;
-                        o.Secrets.Append(new RetreivableSecret("creds"));
+                        o.KeyValueSecrets.Add(new KeyValueSecret("creds"));
+                       // o.DatabaseSecrets.Add(new DatabaseSecret("test"));
                     });
                 })
                 .UseStartup<Startup>();
