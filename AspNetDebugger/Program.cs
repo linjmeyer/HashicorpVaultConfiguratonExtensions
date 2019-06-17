@@ -32,6 +32,7 @@ namespace AspNetDebugger
                         o.ClientSettings = vaultClientSettings;
                         o.KeyValueSecrets.Add(new KeyValueSecret("creds"));
                         o.CubbyholeSecrets.Add(new CubbyholeSecret("creds"));
+                        o.SshSecrets.Add(new SshSecret("balla", "127.0.0.1", username: "itsadefault"));
                        // o.DatabaseSecrets.Add(new DatabaseSecret("test"));
                     });
                 })

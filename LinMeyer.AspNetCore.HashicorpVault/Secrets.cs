@@ -2,15 +2,31 @@ using System;
 
 namespace LinMeyer.AspNetCore.HashicorpVault
 {
+    public class BaseSecret
+    {
+        public string MountPoint { get; set; }
+
+        public BaseSecret(string mountPoint = null)
+        {
+            if(string.IsNullOrWhiteSpace(mountPoint))
+            {
+                throw new ArgumentNullException(nameof(mountPoint));
+            }
+            MountPoint = mountPoint;
+        }
+
+    }
+
     ////////////////////////////////////////////////////
     // KeyValueSecret
     ////////////////////////////////////////////////////
-    public class KeyValueSecret 
+    public class KeyValueSecret : BaseSecret
     {
         public string Name { get; set; }
         public KeyValueVersion Version { get; set; }
+        public int? V2Version { get; set; }
 
-        public KeyValueSecret(string name, KeyValueVersion version = KeyValueVersion.V2) 
+        public KeyValueSecret(string name, KeyValueVersion version = KeyValueVersion.V2, int? v2Version = null, string mountPoint = "kv") : base(mountPoint)
         {
             if(string.IsNullOrWhiteSpace(name))
             {
@@ -19,6 +35,7 @@ namespace LinMeyer.AspNetCore.HashicorpVault
 
             Name = name;
             Version = version;
+            V2Version = v2Version;
         }
     }
 
@@ -31,10 +48,10 @@ namespace LinMeyer.AspNetCore.HashicorpVault
     ////////////////////////////////////////////////////
     // Database
     ////////////////////////////////////////////////////
-    public class DatabaseSecret
+    public class DatabaseSecret : BaseSecret
     {
         public string Name { get; set; }
-        public DatabaseSecret(string name)
+        public DatabaseSecret(string name, string mountPoint = "database") : base(mountPoint)
         {
             Name = name;
         }
@@ -49,6 +66,23 @@ namespace LinMeyer.AspNetCore.HashicorpVault
         public CubbyholeSecret(string path)
         {
             Path = path;
+        }
+    }
+
+    ////////////////////////////////////////////////////
+    // SSH
+    ////////////////////////////////////////////////////
+    public class SshSecret : BaseSecret
+    {
+        public string Role { get; set; }
+        public string IpAddress { get; set; }
+        public string Username { get; set; }
+
+        public SshSecret(string role, string ipAddress, string username = null, string mountPoint = "ssh") : base(mountPoint)
+        {
+            Role = role;
+            IpAddress = ipAddress;
+            Username = username;
         }
     }
 }
